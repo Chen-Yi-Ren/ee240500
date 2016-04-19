@@ -1,0 +1,273 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Getting 3D Sensor Data</title>
+        
+        <!-- 1/3. Include the RGraph libraries -->
+        <script src="RGraph/libraries/RGraph.common.core.js" >
+        <!--
+        
+        //-->
+        </script>
+        <script src="RGraph/libraries/RGraph.common.context.js" >
+        <!--
+        
+        //-->
+        </script>
+        <script src="RGraph/libraries/RGraph.line.js" >
+        <!--
+        
+        //-->
+        </script>
+        <!--[if IE 8]><script src="../excanvas/excanvas.compressed.js">
+        <!--
+        
+        //-->
+        </script><![endif]-->
+</head>
+        
+<body id="bd">
+        <!--
+        Debug Informtion:
+        <div id="myDivElement" />
+        -->
+        
+        <script>
+        <!--
+        
+var batch=5;
+var samples=batch;
+var timecycle=0;
+var requestCounter = 0;
+var interval = 0;
+var nodata = 0;
+var serverAddressBase = "xdata.";
+var serverAddress = "xdata.0"; //default file to get from server
+
+d1 = [];
+
+// Pre-pad the arrays with # of samples null values
+for (var i=0; i< samples; ++i) {
+    d1.push(null);
+}
+
+var xmlHttp = createXmlHttpRequestObject();
+
+
+// creates XMLHttpRequest Instance
+function createXmlHttpRequestObject(){
+    
+    // will store XMLHttpRequest object
+    // at here
+    var xmlHttp;
+    
+    // works all exceprt IE6 and older  
+    try
+    {
+        
+        // try to create XMLHttpRequest object
+        xmlHttp = new XMLHttpRequest();    
+    }
+    catch(e)
+    {
+        // assume IE 6 or older
+        try
+        {
+            xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        catch(e){ }
+    }
+    
+    // return object or display error
+    if (!xmlHttp)
+        alert("Error creating the XMLHttpRequest Object");
+    else
+        return xmlHttp;
+}
+
+function GetJsonData()
+{
+    //debug
+    //myDiv = document.getElementById("myDivElement"); 
+    //myDiv.innerHTML += "Getting Json Data<br>"; 
+    nodata=0;
+    
+    if(xmlHttp)
+    {
+        try
+        {
+            xmlHttp.open("Get", serverAddress, false);
+            //xmlHttp.onreadystatechange = handleRequestStateChange; //We use synchronous data transfer, so we don't need this here
+            xmlHttp.send(null);
+            try{
+                handleJsonData();
+            }
+            catch(err){
+                if(err=="no data"){
+                    //alert('Waiting '+serverAddressBase+requestCounter);
+                    //setTimeout(GetJsonData,10); //Try again 10ms later
+                    nodata=1; //record status
+                }
+            }
+        }
+        catch(e)
+        {
+              alert("Can't connect to server\n" + e.toString());
+        }
+    }
+}
+
+function handleRequestStateChange()
+{
+    if (xmlHttp.readyState == 4)
+    {
+        if(xmlHttp.status == 200|| xmlHttp.status == 0)
+        {
+            try
+            {
+                handleJsonData();
+            }
+            catch(e)
+            {
+                alert("Error reading the response: " + e.toString());
+            }
+        }
+        else
+        {
+            alert("Problem retrieving data:\n" + xmlHttp.statusText);
+        }
+        
+        
+    }
+    
+}
+
+function handleJsonData()
+{
+    var result = xmlHttp.responseText;
+    if(result==''){
+        //alert('No data from xmlhttprequest object!');
+        throw "no data";
+    }
+    else{
+        try{
+            var jobject = eval("(" + result + ")");
+            var i;
+            if(jobject.time>timecycle){
+                timecycle=jobject.time;
+                if(jobject.xarray.length==0){
+                    throw "no data";
+                }
+                else{
+                    for(i=0; i<jobject.xarray.length; i++)
+                        d1[i]=jobject.xarray[i][0];
+                }
+            }
+            else{
+                //Do nothing
+            }
+        }
+        catch(e){
+            //Retry; ignore all json errors
+        }
+    }
+}
+
+function clearbd(){
+	document.getElementById("bd").innerHTML="";
+}
+
+function drawGraph ()
+{
+    //Prepare new file name to get from
+    serverAddress=serverAddressBase+requestCounter;
+    //alert('Debug'+serverAddress);
+    //Save data from json object to the arrays
+    GetJsonData();
+    var i=0;
+    var t;
+    for (var i=0; i<samples; i++) {
+        
+        if(d1[i]=="0"){
+            t=document.createTextNode("Y");
+        }
+        else if(d1[i]=="1"){
+            t=document.createTextNode("A");
+        }
+        else if(d1[i]=="2"){
+            t=document.createTextNode("B");
+        }
+        else if(d1[i]=="3"){
+            t=document.createTextNode("C");
+        }
+        else if(d1[i]=="4"){
+            t=document.createTextNode("D");
+        }
+        else if(d1[i]=="5"){
+            t=document.createTextNode("E");
+        }
+        else if(d1[i]=="6"){
+            t=document.createTextNode("F");
+        }
+        else if(d1[i]=="7"){
+            t=document.createTextNode("G");
+        }
+        else if(d1[i]=="8"){
+            t=document.createTextNode("H");
+        }
+        else if(d1[i]=="9"){
+            t=document.createTextNode("I");
+        }
+        else if(d1[i]=="10"){
+            t=document.createTextNode("J");
+        }
+        else if(d1[i]=="11"){
+            t=document.createTextNode("K");
+        }
+        else if(d1[i]=="12"){
+            t=document.createTextNode("L");
+        }
+        else if(d1[i]=="13"){
+            t=document.createTextNode("M");
+        }
+        else if(d1[i]=="14"){
+            t=document.createTextNode("N");
+        }
+        else if(d1[i]=="15"){
+            t=document.createTextNode("O");
+        }
+        else if(d1[i]=="16"){
+            t=document.createTextNode("P");
+        }
+        else if(d1[i]=="17"){
+            t=document.createTextNode("Q");
+        }
+        else{
+            t=document.createTextNode("Wrong");
+        }
+	document.body.appendChild(t);
+	t=document.createTextNode("  ");
+        document.body.appendChild(t);
+		
+    };
+    
+	
+	
+    if(!nodata){ //Keep the file counter
+        requestCounter=(requestCounter+1)%2; //cycle counter
+        //alert('Counter changed: '+requestCounter);
+    }
+    else{
+        //alert('Counter keeped: '+requestCounter);
+    }
+    setTimeout(clearbd,3500);
+    setTimeout(drawGraph,4000);
+}
+
+drawGraph();
+
+//-->
+</script>
+</body>
+</html>
